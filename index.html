@@ -19,6 +19,32 @@ th:not(:first-child),td:not(:first-child){text-align:right}.total td{border-top:
 .footer{position:absolute;left:46px;right:46px;bottom:35px;border-top:1px solid #ccc;padding-top:12px;display:flex;justify-content:space-between;font-size:9px;color:#666}.sig{text-align:center;color:#111}.sigline{width:145px;border-top:1px solid #111;margin:auto auto 5px}
 .item{padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:10px}
 @media(max-width:650px){.grid,.meta{grid-template-columns:1fr}.full{grid-column:auto}#invoice{padding:28px 20px;min-height:1000px}.footer{left:20px;right:20px;flex-direction:column;gap:12px}.title{text-align:left}.head{flex-wrap:wrap}}
+/* Hide application controls when printing */
+body.printing .actions,
+body.printing button {
+    display: none !important;
+}
+/* Keep invoice table header dark in PDF/Android printing */
+body.printing #invoice th {
+    background: #111 !important;
+    color: #fff !important;
+    border: 1px solid #111 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+body.printing #invoice table {
+    border-collapse: collapse !important;
+}
+
+body.printing #invoice th,
+body.printing #invoice td {
+    border: 1px solid #ddd;
+}
+
+body.printing #invoice th {
+    border-color: #111 !important;
+}
+
 /* Print only the invoice */
 body.printing .app > * {
   display: none !important;
