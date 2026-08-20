@@ -19,6 +19,31 @@ th:not(:first-child),td:not(:first-child){text-align:right}.total td{border-top:
 .footer{position:absolute;left:46px;right:46px;bottom:35px;border-top:1px solid #ccc;padding-top:12px;display:flex;justify-content:space-between;font-size:9px;color:#666}.sig{text-align:center;color:#111}.sigline{width:145px;border-top:1px solid #111;margin:auto auto 5px}
 .item{padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:10px}
 @media(max-width:650px){.grid,.meta{grid-template-columns:1fr}.full{grid-column:auto}#invoice{padding:28px 20px;min-height:1000px}.footer{left:20px;right:20px;flex-direction:column;gap:12px}.title{text-align:left}.head{flex-wrap:wrap}}
+/* Print only the invoice */
+body.printing .app > * {
+  display: none !important;
+}
+
+body.printing .app #invoice {
+  display: block !important;
+}
+
+@media print {
+  body.printing {
+    background: #fff !important;
+  }
+
+  body.printing .app {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  body.printing .app #invoice {
+    display: block !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}
 @media print{body{background:#fff}.no-print{display:none!important}.app{padding:0;max-width:none}#invoice{box-shadow:none;width:210mm;height:297mm;max-width:none;min-height:0;padding:12mm}.footer{left:12mm;right:12mm;bottom:10mm}@page{size:A4;margin:0}}
 </style>
 </head>
@@ -156,223 +181,21 @@ function generate(){
  h.unshift({no:no,customer:customer,duty:duty,date:date,billingType:billingType,km:km,rate:rate,packageCharge:packageCharge,extraKm:extraKm,extraKmRate:extraKmRate,extraHours:extraHours,extraHourRate:extraHourRate,toll:toll,parking:parking,total:total});
  localStorage.setItem(HKEY,JSON.stringify(h.slice(0,50)));renderHistory();
 }
-function printInvoice(){
+function printInvoice() {
   if (!$("pcustomer").textContent) {
     alert("Generate an invoice first.");
     return;
   }
 
-  // Open a separate print window containing ONLY the invoice
-  const invoiceHtml = $("invoice").outerHTML;
-  const printWindow = window.open("", "_blank", "width=900,height=1100");
+  document.body.classList.add("printing");
 
-  if (!printWindow) {
-    alert("Please allow pop-ups for this file, then click Print / Save PDF again.");
-    return;
-  }
-
-  printWindow.document.open();
-
-  printWindow.document.write(`
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>${$("pino").textContent} - Ira Elite Services</title>
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #111;
-}
-
-#invoice {
-  background: #fff;
-  width: 210mm;
-  height: 297mm;
-  padding: 12mm;
-  position: relative;
-  margin: 0 auto;
-}
-
-.head {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.logo {
-  width: 135px;
-  height: 70px;
-  object-fit: contain;
-  object-position: left center;
-}
-
-.company {
-  flex: 1;
-}
-
-.company h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.company p {
-  margin: 4px 0;
-  font-size: 10px;
-  color: #555;
-}
-
-.title {
-  text-align: right;
-}
-
-.title h2 {
-  margin: 0;
-  font-size: 28px;
-}
-
-.title p {
-  margin: 5px 0;
-  font-size: 11px;
-}
-
-.rule {
-  height: 2px;
-  background: #111;
-  margin: 20px 0;
-}
-
-.meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 30px;
-  margin-bottom: 24px;
-}
-
-.meta div {
-  border-bottom: 1px solid #ddd;
-  padding: 7px 0;
-  font-size: 12px;
-}
-
-.meta b {
-  display: inline-block;
-  width: 90px;
-  font-size: 10px;
-  color: #666;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-th {
-  background: #111;
-  color: #fff;
-  padding: 10px;
-  text-align: left;
-  font-size: 10px;
-}
-
-td {
-  padding: 11px 9px;
-  border-bottom: 1px solid #ddd;
-}
-
-th:not(:first-child),
-td:not(:first-child) {
-  text-align: right;
-}
-
-.total td {
-  border-top: 2px solid #111;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.words {
-  margin-top: 15px;
-  font-size: 11px;
-}
-
-.thank {
-  margin-top: 24px;
-  font-size: 10px;
-  color: #666;
-}
-
-.footer {
-  position: absolute;
-  left: 12mm;
-  right: 12mm;
-  bottom: 10mm;
-  border-top: 1px solid #ccc;
-  padding-top: 12px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: #666;
-}
-
-.sig {
-  text-align: center;
-  color: #111;
-}
-
-.sigline {
-  width: 145px;
-  border-top: 1px solid #111;
-  margin: auto auto 5px;
-}
-
-@page {
-  size: A4;
-  margin: 0;
-}
-
-@media print {
-  body {
-    margin: 0;
-  }
-
-  #invoice {
-    margin: 0;
-  }
-}
-</style>
-</head>
-
-<body>
-
-${invoiceHtml}
-
-<script>
-window.onload = function() {
-  setTimeout(function() {
+  setTimeout(function () {
     window.print();
-  }, 250);
-};
 
-window.onafterprint = function() {
-  window.close();
-};
-<\/script>
-
-</body>
-</html>
-`);
-
-  printWindow.document.close();
+    setTimeout(function () {
+      document.body.classList.remove("printing");
+    }, 1000);
+  }, 100);
 }
 function clearForm(){
  ["customer","duty","km","rate","packageCharge","extraKm","extraHours","toll","parking"].forEach(x=>{if($(x))$(x).value=""});
